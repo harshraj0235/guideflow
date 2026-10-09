@@ -1,0 +1,221 @@
+// Prisma schema for GuideFlow
+// SQLite for solo dev beta — easily upgradeable to PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String
+  avatarUrl     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  workspaces    Membership[]
+  guides        Guide[]
+  sessions      Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members   Membership[]
+  guides    Guide[]
+}
+
+model Membership {
+  id          String   @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        String   @default("member") // owner, admin, member
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+}
+
+model Guide {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @default("")
+  status      String   @default("draft") // draft, published, archived
+  version     Int      @default(1)
+  category    String   @default("general")
+  tags        String   @default("[]") // JSON array of tag strings
+  language    String   @default("en")
+  isTemplate  Boolean  @default(false)
+  templateId  String?  // created from this template
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime?
+
+  authorId    String
+  workspaceId String
+
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  steps           Step[]
+  shareLinks      ShareLink[]
+  analyticsEvents AnalyticsEvent[]
+  comments        Comment[]
+  versionHistory  GuideVersion[]
+}
+
+model Step {
+  id          String  @id @default(cuid())
+  guideId     String
+  index       Int
+  instruction String
+  notes       String  @default("")
+  actionType  String  @default("click")
+  metadata    String  @default("{}") // JSON string
+  selector    String  @default("") // CSS selector for walkthrough mode
+  hotkey      String  @default("") // keyboard shortcut if applicable
+
+  screenshotKey    String?
+  screenshotUrl    String?
+  screenshotWidth  Int?
+  screenshotHeight Int?
+
+  clickPositionX       Float?
+  clickPositionY       Float?
+  clickViewportWidth   Float?
+  clickViewportHeight  Float?
+
+  annotations String @default("[]") // JSON string of annotation objects
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  guide Guide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@index([guideId, index])
+}
+
+model ShareLink {
+  id          String    @id @default(cuid())
+  guideId     String
+  token       String    @unique
+  accessMode  String    @default("unlisted") // private, unlisted, public
+  password    String?   // optional password protection
+  expiresAt   DateTime?
+  isRevoked   Boolean   @default(false)
+  viewCount   Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  guide Guide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+}
+
+model UsageRecord {
+  id          String   @id @default(cuid())
+  workspaceId String
+  metric      String   // guides_created, screenshots_stored, exports
+  quantity    Int      @default(0)
+  period      String   // 2024-01
+  createdAt   DateTime @default(now())
+
+  @@unique([workspaceId, metric, period])
+}
+
+// ─── Advanced Features ───────────────────────────────────────────
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  guideId   String
+  event     String   // guide_view, guide_complete, step_view, etc.
+  stepIndex Int?
+  metadata  String   @default("{}")
+  visitorId String
+  sessionId String
+  referrer  String   @default("")
+  userAgent String   @default("")
+  timestamp DateTime @default(now())
+
+  guide Guide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@index([guideId, timestamp])
+  @@index([guideId, event])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  guideId   String
+  stepIndex Int?     // null = guide-level comment
+  authorName String
+  authorEmail String @default("")
+  content   String
+  type      String   @default("comment") // comment, suggestion, issue
+  status    String   @default("open") // open, resolved, dismissed
+  createdAt DateTime @default(now())
+
+  guide Guide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@index([guideId])
+}
+
+model GuideVersion {
+  id        String   @id @default(cuid())
+  guideId   String
+  version   Int
+  title     String
+  data      String   // Full JSON snapshot of guide + steps
+  changedBy String
+  changeLog String   @default("")
+  createdAt DateTime @default(now())
+
+  guide Guide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@index([guideId, version])
+}
+
+model GuideTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @default("")
+  category    String   @default("general")
+  icon        String   @default("📋")
+  data        String   // JSON with template steps
+  isPublic    Boolean  @default(true)
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model WorkspaceBranding {
+  id            String  @id @default(cuid())
+  workspaceId   String  @unique
+  brandName     String  @default("GuideFlow")
+  brandColor    String  @default("#6366f1")
+  logoUrl       String?
+  faviconUrl    String?
+  customDomain  String?
+  customCSS     String  @default("")
+  footerText    String  @default("")
+  hideWatermark Boolean @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

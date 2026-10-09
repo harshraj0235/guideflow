@@ -1,0 +1,5 @@
+export const starterTemplates = [
+    { id: "onboarding", name: "Welcome a new teammate", category: "People & onboarding", description: "Give every new joiner a confident first day.", steps: ["Sign in to your team workspace", "Complete your profile and notification preferences", "Find your team's shared resources", "Introduce yourself in the team channel", "Schedule your first check-in"] },
+    { id: "support", name: "Resolve a customer request", category: "Customer support", description: "Make a great support experience repeatable.", steps: ["Open the customer request and review the context", "Reproduce the issue and capture what you see", "Apply the solution and verify the result", "Reply to the customer with clear next steps", "Document the resolution and close the request"] },
+    { id: "process", name: "Document a repeatable process", category: "Operations", description: "Turn the way you work into a shared playbook.", steps: ["Confirm the goal and required access", "Open the tool and locate your starting point", "Complete the main action", "Check the result against your success criteria", "Share the outcome with the next owner"] },
+] as const;

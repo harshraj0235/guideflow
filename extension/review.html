@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GuideFlow — Review Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f13;
+      --bg-panel: #1a1a23;
+      --bg-card: #242432;
+      --bg-hover: #2a2a3a;
+      --text: #f0f0f5;
+      --text-secondary: #a0a0b5;
+      --text-muted: #6b6b80;
+      --accent: #6366f1;
+      --accent-light: #818cf8;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --border: rgba(255,255,255,0.08);
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Layout */
+    .app {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      grid-template-rows: 56px 1fr;
+      height: 100vh;
+    }
+
+    /* Top Bar */
+    .topbar {
+      grid-column: 1 / -1;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+    }
+
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .topbar-logo-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .topbar-title {
+      flex: 1;
+    }
+
+    .topbar-title input {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      width: 400px;
+      transition: border-color 0.2s;
+    }
+
+    .topbar-title input:hover,
+    .topbar-title input:focus {
+      border-color: var(--border);
+      outline: none;
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #818cf8, #a78bfa);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg-card);
+      color: var(--text);
+    }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.1);
+      color: var(--danger);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239,68,68,0.2);
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    /* Step List Panel */
+    .step-panel {
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .step-panel-header {
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .step-panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .step-panel-count {
+      font-size: 12px;
+      background: var(--bg-card);
+      padding: 2px 8px;
+      border-radius: 10px;
+      color: var(--text-secondary);
+    }
+
+    .step-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--bg-card) transparent;
+    }
+
+    .step-card {
+      display: flex;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 4px;
+      border: 1px solid transparent;
+    }
+
+    .step-card:hover {
+      background: var(--bg-card);
+    }
+
+    .step-card.selected {
+      background: rgba(99,102,241,0.1);
+      border-color: rgba(99,102,241,0.3);
+    }
+
+    .step-card.dragging {
+      opacity: 0.5;
+      background: var(--bg-card);
+    }
+
+    .step-card-number {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: var(--accent-light);
+    }
+
+    .step-card.selected .step-card-number {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+    }
+
+    .step-card-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .step-card-instruction {
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .step-card-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .step-card-thumb {
+      width: 44px;
+      height: 30px;
+      border-radius: 4px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+    }
+
+    .step-card-actions {
+      display: flex;
+      gap: 2px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .step-card:hover .step-card-actions {
+      opacity: 1;
+    }
+
+    .step-action-btn {
+      width: 22px;
+      height: 22px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+
+    .step-action-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+
+    .step-panel-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Editor Panel */
+    .editor-panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .editor-toolbar {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-panel);
+    }
+
+    .tool-group {
+      display: flex;
+      gap: 2px;
+      padding: 2px;
+      background: var(--bg-card);
+      border-radius: 8px;
+    }
+
+    .tool-btn {
+      width: 34px;
+      height: 34px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      color: var(--text-secondary);
+      position: relative;
+    }
+
+    .tool-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+
+    .tool-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .tool-btn[title]::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      white-space: nowrap;
+      background: var(--bg-card);
+      padding: 3px 8px;
+      border-radius: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s;
+      border: 1px solid var(--border);
+    }
+
+    .tool-btn:hover[title]::after {
+      opacity: 1;
+    }
+
+    .toolbar-separator {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      margin: 0 8px;
+    }
+
+    /* Canvas Area */
+    .canvas-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow: auto;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(99,102,241,0.03) 0%, transparent 70%),
+        var(--bg);
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .canvas-wrapper canvas {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      cursor: crosshair;
+    }
+
+    /* Step Editor (below canvas) */
+    .step-editor {
+      width: 100%;
+      max-width: 800px;
+      margin: 20px auto 0;
+      padding: 20px;
+      background: var(--bg-panel);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .step-editor-field {
+      margin-bottom: 16px;
+    }
+
+    .step-editor-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .step-editor-input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .step-editor-input:focus {
+      border-color: var(--accent);
+    }
+
+    textarea.step-editor-input {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    /* Empty State */
+    .empty-editor {
+      text-align: center;
+      padding: 60px 40px;
+      color: var(--text-muted);
+    }
+
+    .empty-editor .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+
+    .empty-editor h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+
+    .empty-editor p {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* No Recording */
+    .no-recording {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: 40px;
+      grid-column: 1 / -1;
+    }
+
+    .no-recording .icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+      opacity: 0.5;
+    }
+
+    .no-recording h2 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .no-recording p {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    /* Drag-and-drop indicator */
+    .step-card.drag-over {
+      border-top: 2px solid var(--accent);
+    }
+
+    /* Color picker for redaction */
+    .color-options {
+      display: flex;
+      gap: 4px;
+      margin-left: 8px;
+    }
+
+    .color-swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .color-swatch:hover,
+    .color-swatch.active {
+      border-color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-logo">
+        <div class="topbar-logo-icon">📋</div>
+        GuideFlow
+      </div>
+      <div class="topbar-title">
+        <input type="text" id="guide-title" placeholder="Untitled Guide" value="">
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" id="btn-preview">👁 Preview</button>
+        <button class="btn btn-secondary" id="btn-export-pdf">📄 Export PDF</button>
+        <button class="btn btn-primary" id="btn-save-upload">☁️ Save & Upload</button>
+      </div>
+    </div>
+
+    <!-- Step List -->
+    <div class="step-panel">
+      <div class="step-panel-header">
+        <span class="step-panel-title">Steps</span>
+        <span class="step-panel-count" id="panel-step-count">0</span>
+      </div>
+      <div class="step-list" id="step-list"></div>
+      <div class="step-panel-footer">
+        <button class="btn btn-secondary btn-sm" id="btn-add-step" style="flex:1;">+ Add Step</button>
+      </div>
+    </div>
+
+    <!-- Editor Area -->
+    <div class="editor-panel" id="editor-panel">
+      <div class="editor-toolbar" id="editor-toolbar" style="display:none;">
+        <div class="tool-group">
+          <button class="tool-btn active" data-tool="select" title="Select">🔲</button>
+          <button class="tool-btn" data-tool="redact" title="Redact">⬛</button>
+          <button class="tool-btn" data-tool="highlight" title="Highlight">🟡</button>
+          <button class="tool-btn" data-tool="crop" title="Crop">✂️</button>
+        </div>
+        <div class="toolbar-separator"></div>
+        <div class="tool-group">
+          <button class="tool-btn" data-tool="click-marker" title="Click Marker">🎯</button>
+          <button class="tool-btn" data-tool="arrow" title="Arrow">➡️</button>
+          <button class="tool-btn" data-tool="text" title="Text">📝</button>
+        </div>
+        <div class="toolbar-separator"></div>
+        <div class="color-options" id="redaction-colors">
+          <div class="color-swatch active" style="background:#000" data-color="#000000"></div>
+          <div class="color-swatch" style="background:#ef4444" data-color="#ef4444"></div>
+          <div class="color-swatch" style="background:#f59e0b" data-color="#f59e0b"></div>
+          <div class="color-swatch" style="background:#22c55e" data-color="#22c55e"></div>
+          <div class="color-swatch" style="background:#6366f1" data-color="#6366f1"></div>
+        </div>
+        <div style="flex:1"></div>
+        <button class="btn btn-ghost btn-sm" id="btn-undo">↩ Undo</button>
+        <button class="btn btn-ghost btn-sm" id="btn-redo">↪ Redo</button>
+        <button class="btn btn-secondary btn-sm" id="btn-replace-screenshot">🔄 Replace</button>
+      </div>
+
+      <div class="canvas-area" id="canvas-area">
+        <div class="empty-editor" id="empty-editor">
+          <div class="icon">🖼️</div>
+          <h3>Select a Step</h3>
+          <p>Click a step from the left panel to view and edit its screenshot and instructions.</p>
+        </div>
+
+        <div id="editor-content" style="display:none;">
+          <div class="canvas-wrapper" id="canvas-wrapper">
+            <canvas id="screenshot-canvas"></canvas>
+          </div>
+
+          <div class="step-editor">
+            <div class="step-editor-field">
+              <label class="step-editor-label">Instruction</label>
+              <input type="text" class="step-editor-input" id="edit-instruction" placeholder="Describe this step...">
+            </div>
+            <div class="step-editor-field">
+              <label class="step-editor-label">Notes (optional)</label>
+              <textarea class="step-editor-input" id="edit-notes" placeholder="Add extra context or tips..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="review.js"></script>
+</body>
+</html>

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=384, initial-scale=1.0">
+  <title>GuideFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0f0f13;
+      --bg-secondary: #1a1a23;
+      --bg-tertiary: #242432;
+      --bg-hover: #2a2a3a;
+      --text-primary: #f0f0f5;
+      --text-secondary: #a0a0b5;
+      --text-muted: #6b6b80;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --accent-glow: rgba(99, 102, 241, 0.3);
+      --danger: #ef4444;
+      --danger-hover: #f87171;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --border: rgba(255, 255, 255, 0.08);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 380px;
+      min-height: 480px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .header {
+      padding: 20px 20px 16px;
+      background: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 2px 8px var(--accent-glow);
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #c7d2fe, #e0e7ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-version {
+      font-size: 10px;
+      color: var(--text-muted);
+      background: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: auto;
+    }
+
+    /* State Views */
+    .state-view {
+      display: none;
+      padding: 20px;
+    }
+
+    .state-view.active {
+      display: block;
+    }
+
+    /* Idle State */
+    .idle-hero {
+      text-align: center;
+      padding: 32px 0;
+    }
+
+    .idle-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      border: 2px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .idle-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .idle-description {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    /* Buttons */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 20px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #818cf8, #a78bfa);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px var(--accent-glow);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 8px 12px;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text-primary);
+      background: var(--bg-tertiary);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-group .btn {
+      flex: 1;
+    }
+
+    /* Recording State */
+    .recording-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .recording-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--danger);
+      animation: pulse 1.5s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    .recording-dot.paused {
+      background: var(--warning);
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    .recording-info {
+      flex: 1;
+    }
+
+    .recording-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .recording-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Step List */
+    .step-list {
+      margin-bottom: 16px;
+    }
+
+    .step-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .step-list-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .step-count {
+      font-size: 11px;
+      background: var(--bg-tertiary);
+      padding: 2px 8px;
+      border-radius: 10px;
+      color: var(--text-secondary);
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      transition: background 0.15s ease;
+    }
+
+    .step-item:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .step-number {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .step-instruction {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+
+    .step-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .step-screenshot-indicator {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .step-screenshot-indicator.captured {
+      background: var(--success);
+    }
+
+    .step-screenshot-indicator.pending {
+      background: var(--warning);
+    }
+
+    .step-screenshot-indicator.failed {
+      background: var(--danger);
+    }
+
+    .step-list-scroll {
+      max-height: 200px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--bg-tertiary) transparent;
+    }
+
+    .step-list-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .step-list-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .step-list-scroll::-webkit-scrollbar-thumb {
+      background: var(--bg-tertiary);
+      border-radius: 2px;
+    }
+
+    /* Empty State */
+    .empty-steps {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .empty-steps .icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+
+    /* Review Prompt */
+    .review-prompt {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .review-prompt .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .review-prompt h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .review-prompt p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    /* Interrupted State */
+    .interrupted-banner {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .interrupted-banner .icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .interrupted-banner .text {
+      font-size: 12px;
+      color: var(--warning);
+      line-height: 1.4;
+    }
+
+    /* Saved Guides */
+    .saved-section {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+
+    .saved-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .guide-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .guide-card:hover {
+      background: var(--bg-tertiary);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .guide-card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(99, 102, 241, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .guide-card-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .guide-card-title {
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .guide-card-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .guide-card-arrow {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-link {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .footer-link:hover {
+      color: var(--accent);
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-item {
+      animation: slideIn 0.2s ease-out;
+    }
+
+    /* Timer */
+    .timer {
+      font-family: 'Inter', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">📋</div>
+      <div class="logo-text">GuideFlow</div>
+      <span class="logo-version">Beta</span>
+    </div>
+  </div>
+
+  <!-- Idle State -->
+  <div id="idle-view" class="state-view active">
+    <div class="idle-hero">
+      <div class="idle-icon">🎯</div>
+      <h2 class="idle-title">Ready to Record</h2>
+      <p class="idle-description">
+        Click any process in your browser and GuideFlow will capture each step with screenshots automatically.
+      </p>
+    </div>
+    <button id="btn-start" class="btn btn-primary">
+      <span>⏺</span> Start Recording
+    </button>
+
+    <div id="saved-guides" class="saved-section" style="display: none;">
+      <div class="saved-section-title">Recent Guides</div>
+      <div id="guides-list"></div>
+    </div>
+  </div>
+
+  <!-- Recording State -->
+  <div id="recording-view" class="state-view">
+    <div class="recording-status">
+      <div id="recording-dot" class="recording-dot"></div>
+      <div class="recording-info">
+        <div id="recording-label" class="recording-label">Recording...</div>
+        <div id="recording-meta" class="recording-meta">
+          <span id="timer" class="timer">00:00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-list">
+      <div class="step-list-header">
+        <span class="step-list-title">Captured Steps</span>
+        <span id="step-count" class="step-count">0 steps</span>
+      </div>
+
+      <div id="steps-container" class="step-list-scroll">
+        <div class="empty-steps">
+          <div class="icon">👆</div>
+          <div>Interact with the page to capture steps</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button id="btn-pause" class="btn btn-secondary">
+        <span>⏸</span> Pause
+      </button>
+      <button id="btn-stop" class="btn btn-danger">
+        <span>⏹</span> Stop
+      </button>
+    </div>
+  </div>
+
+  <!-- Paused State -->
+  <div id="paused-view" class="state-view">
+    <div class="recording-status">
+      <div class="recording-dot paused"></div>
+      <div class="recording-info">
+        <div class="recording-label">Paused</div>
+        <div class="recording-meta">
+          <span id="paused-timer" class="timer">00:00</span> · <span id="paused-step-count">0</span> steps
+        </div>
+      </div>
+    </div>
+
+    <div id="paused-steps-container" class="step-list">
+      <div class="step-list-scroll" id="paused-steps-list"></div>
+    </div>
+
+    <div class="btn-group">
+      <button id="btn-resume" class="btn btn-primary">
+        <span>▶</span> Resume
+      </button>
+      <button id="btn-stop-paused" class="btn btn-danger">
+        <span>⏹</span> Stop
+      </button>
+    </div>
+    <div class="btn-group" style="margin-top: 4px;">
+      <button id="btn-discard" class="btn btn-ghost">
+        Discard Recording
+      </button>
+    </div>
+  </div>
+
+  <!-- Review Prompt -->
+  <div id="review-view" class="state-view">
+    <div class="review-prompt">
+      <div class="icon">✅</div>
+      <h3>Recording Complete!</h3>
+      <p id="review-summary">10 steps captured with screenshots. Review and edit your guide before sharing.</p>
+    </div>
+    <button id="btn-review" class="btn btn-primary">
+      <span>✏️</span> Review & Edit Guide
+    </button>
+    <div class="btn-group">
+      <button id="btn-open-webapp" class="btn btn-secondary">
+        <span>🌐</span> Open in Web Editor
+      </button>
+    </div>
+    <div class="btn-group" style="margin-top: 4px;">
+      <button id="btn-discard-review" class="btn btn-ghost">
+        Discard
+      </button>
+    </div>
+  </div>
+
+  <!-- Interrupted State -->
+  <div id="interrupted-view" class="state-view">
+    <div class="interrupted-banner">
+      <div class="icon">⚠️</div>
+      <div class="text">
+        Recording was interrupted. You can recover your captured steps or start fresh.
+      </div>
+    </div>
+
+    <div id="interrupted-summary" style="margin-bottom: 16px;">
+      <p style="font-size: 13px; color: var(--text-secondary);" id="interrupted-info"></p>
+    </div>
+
+    <button id="btn-recover" class="btn btn-primary">
+      <span>🔄</span> Recover & Review
+    </button>
+    <div class="btn-group">
+      <button id="btn-discard-interrupted" class="btn btn-ghost">
+        Discard Recording
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span class="footer-link" id="link-dashboard">Dashboard</span>
+    <span class="footer-link" id="link-settings">Settings</span>
+    <span class="footer-link" id="link-help">Help</span>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
